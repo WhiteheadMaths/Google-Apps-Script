@@ -1,0 +1,42 @@
+function printAllCourses() {
+/*  Peter Whitehead, 2019
+*/  
+  var ss = SpreadsheetApp.openById('<Insert your spreadsheet file Id here>');
+  var shC = getSheetByNameOrCreate(ss,'Courses');
+  var cc = [];
+  cc = getAllCourses();
+// writes whole array as a block rather than line-by-line (much quicker)
+  shC.getRange(shC.getLastRow()+1, 1, cc.length, cc[0].length).setValues(cc);
+}
+
+function getAllCourses() {
+/*  Peter Whitehead,2019
+    returns all Google Classrooms
+*/
+  var optionalArgs = {
+    pageSize: 1000
+  };
+  var cList = Classroom.Courses.list(optionalArgs);
+  var courses = cList.courses;
+  var cc = [];
+  cc.push(['CourseId', 'OwnerId', 'State', 'Section', 'Code', 'Name']);
+  if (courses && courses.length > 0) {
+    for (var i = 0; i < courses.length; i++) {
+      var course = courses[i];
+      cc.push([course.id, course.ownerId, course.courseState, course.section, course.enrollmentCode, course.name]);
+    }
+  }
+  return cc;
+}
+
+function getSheetByNameOrCreate(ss,sName) {
+/*  Peter Whitehead, 2019
+    retrieves a sheet by name or creates it if it doesn't, and clears it
+*/
+  var sh = ss.getSheetByName(sName);
+  if (sh == null) {
+    sh = ss.insertSheet(sName);
+  }
+  sh.clear();
+  return sh;
+}
